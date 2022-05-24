@@ -74,27 +74,30 @@ fun convertLongToDateString(systemTime: Long): String {
  * @return  Spanned - An interface for text that has formatting attached to it.
  *           See: https://developer.android.com/reference/android/text/Spanned
  */
-fun formatNights(nights: List<SleepNight>, resources: Resources): Spanned {
+fun formatNights(nights: List<SleepNight?>, resources: Resources): Spanned {
     val sb = StringBuilder()
     sb.apply {
         append(resources.getString(R.string.title))
         nights.forEach {
             append("<br>")
             append(resources.getString(R.string.start_time))
-            append("\t${convertLongToDateString(it.startTimeMillis)}<br>")
-            if (it.endTimeMillis != it.startTimeMillis) {
-                append(resources.getString(R.string.end_time))
-                append("\t${convertLongToDateString(it.endTimeMillis)}<br>")
-                append(resources.getString(R.string.quality))
-                append("\t${convertNumericQualityToString(it.sleepQuality, resources)}<br>")
-                append(resources.getString(R.string.hours_slept))
-                // Hours
-                append("\t ${it.endTimeMillis.minus(it.startTimeMillis) / 1000 / 60 / 60}:")
-                // Minutes
-                append("${it.endTimeMillis.minus(it.startTimeMillis) / 1000 / 60}:")
-                // Seconds
-                append("${it.endTimeMillis.minus(it.startTimeMillis) / 1000}<br><br>")
+            if (it != null) {
+                append("\t${convertLongToDateString(it.startTimeMillis)}<br>")
+                if (it.endTimeMillis != it.startTimeMillis) {
+                    append(resources.getString(R.string.end_time))
+                    append("\t${convertLongToDateString(it.endTimeMillis)}<br>")
+                    append(resources.getString(R.string.quality))
+                    append("\t${convertNumericQualityToString(it.sleepQuality, resources)}<br>")
+                    append(resources.getString(R.string.hours_slept))
+                    // Hours
+                    append("\t ${it.endTimeMillis.minus(it.startTimeMillis) / 1000 / 60 / 60}:")
+                    // Minutes
+                    append("${it.endTimeMillis.minus(it.startTimeMillis) / 1000 / 60}:")
+                    // Seconds
+                    append("${it.endTimeMillis.minus(it.startTimeMillis) / 1000}<br><br>")
+                }
             }
+
         }
     }
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
