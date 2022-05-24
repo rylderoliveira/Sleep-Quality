@@ -17,10 +17,7 @@
 package com.example.android.trackmysleepquality.sleeptracker
 
 import android.app.Application
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.*
 import com.example.android.trackmysleepquality.database.SleepDatabaseDao
 import com.example.android.trackmysleepquality.database.SleepNight
 import com.example.android.trackmysleepquality.formatNights
@@ -48,6 +45,30 @@ class SleepTrackerViewModel(
 
         val nightsString = Transformations.map(nights) { nights ->
                 formatNights(nights as List<SleepNight>, application.resources)
+        }
+
+        private val _navigateToSleepQuality = MutableLiveData<SleepNight>()
+
+        val navigateToSleepQuality: LiveData<SleepNight>
+                get() = _navigateToSleepQuality
+
+        val startButtonVisible = Transformations.map(tonight) {
+                null == it
+        }
+        val stopButtonVisible = Transformations.map(tonight) {
+                null != it
+        }
+        val clearButtonVisible = Transformations.map(nights) {
+                it?.isNotEmpty()
+        }
+
+        private var _showSnackBarEvent = MutableLiveData<Boolean>()
+
+        val showSnackBarEvent: LiveData<Boolean>
+                get() = _showSnackBarEvent
+
+        fun doneShowingSnackbar() {
+                _showSnackBarEvent.value = false
         }
 
         init {
@@ -89,6 +110,7 @@ class SleepTrackerViewModel(
                         val oldNight = tonight.value ?: return@launch
                         oldNight.endTimeMillis = System.currentTimeMillis()
                         update(oldNight)
+                        _navigateToSleepQuality.value = oldNight
                 }
         }
 
@@ -109,6 +131,10 @@ class SleepTrackerViewModel(
                 withContext(Dispatchers.IO) {
                         database.clear()
                 }
+        }
+
+        fun doneNavigating() {
+                _navigateToSleepQuality.value = null
         }
 
 }
